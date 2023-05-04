@@ -28,13 +28,18 @@ function verifyCallback(accessToken, refreshToken, profile, done) {
 	done(null, profile);
 }
 passport.use(new Strategy(AUTH_OPTIONS, verifyCallback));
+
 // save the session to the cookie
 passport.serializeUser((user, done) => {
-	done(null, user);
+	done(null, user.id);
 });
+
 // read the session from the cookie
-passport.deserializeUser((obj, done) => {
-	done(null, obj);
+passport.deserializeUser((id, done) => {
+	// User.findById(id).then(user=>{
+	// 	done(null, user)
+	// })
+	done(null, id);
 });
 const app = express();
 
@@ -54,7 +59,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 function checkLoggedIn(req, res, next) {
-	const isLoggedIn = true;
+	// check if user is authenticated
+	const isLoggedIn = req.isAuthenticated() && req.user;
 
 	if (!isLoggedIn) {
 		return res.status(401).json({
