@@ -87,7 +87,10 @@ app.get(
 		console.log('Google called us back');
 	},
 );
-app.get('/auth/logout', (req, res) => {});
+app.get('/auth/logout', (req, res) => {
+	req.logout();
+	return res.redirect('/');
+});
 app.get('/failure', (req, res) => {
 	return res.send('failed to log in!');
 });
