@@ -5,6 +5,7 @@ const express = require('express');
 const helmet = require('helmet');
 require('dotenv').config();
 const passport = require('passport');
+const cookieSession = require('cookie-session');
 const { Strategy } = require('passport-google-oauth20');
 
 const PORT = 3000;
@@ -12,6 +13,8 @@ const PORT = 3000;
 const config = {
 	CLIENT_ID: process.env.CLIENT_ID,
 	CLIENT_SECRET: process.env.CLIENT_SECRET,
+	COOKIE_KEY_1: process.env.COOKIE_KEY_1,
+	COOKIE_KEY_2: process.env.COOKIE_KEY_2,
 };
 
 const AUTH_OPTIONS = {
@@ -29,6 +32,15 @@ passport.use(new Strategy(AUTH_OPTIONS, verifyCallback));
 const app = express();
 
 app.use(helmet());
+app.use(
+	cookieSession({
+		name: 'session',
+		maxAge: 24 * 60 * 60 * 1000,
+		// sign cookies with these keys
+		keys: [config.COOKIE_KEY_1, config.COOKIE_KEY_2],
+	}),
+);
+// set up passport session
 app.use(passport.initialize());
 
 function checkLoggedIn(req, res, next) {
@@ -69,7 +81,6 @@ app.get('/secret', checkLoggedIn, (req, res) => {
 app.get('/', (req, res) => {
 	// res.send('I dey work jare');
 	res.sendFile(path.join(__dirname, 'public', 'index.html'));
-	console.log('i dey work jare ');
 });
 const options = {
 	key: fs.readFileSync('key.pem'),
